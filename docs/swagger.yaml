@@ -1,0 +1,53 @@
+definitions:
+  response.HelloWorld:
+    properties:
+      title:
+        type: string
+    type: object
+  response.errorResp:
+    properties:
+      code:
+        description: Internal apperror code
+        type: integer
+      error:
+        description: Error message to display
+        type: string
+      request_id:
+        description: id to determinate what exacly was wrong by searching in logs.
+        type: string
+    type: object
+info:
+  contact:
+    name: Api service support
+  description: Basic api swagger description
+  title: Basic API
+  version: "1.0"
+paths:
+  /hello_world:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.HelloWorld'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.errorResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.errorResp'
+      security:
+      - User: []
+      summary: Get hello world test info
+      tags:
+      - test
+securityDefinitions:
+  UserToken:
+    in: header
+    name: X-Token-Key
+    type: apiKey
+swagger: "2.0"
