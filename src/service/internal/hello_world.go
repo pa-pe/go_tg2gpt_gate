@@ -29,7 +29,11 @@ func (c *helloWorldImpl) Find(ctx context.Context) (*model.HelloWorld, error) {
 	err := c.cache.Load(ctx, namespace, key, helloWorld)
 	if err != nil {
 		helloWorld, err = c.helloWorldStorage.Find(ctx)
-		if err == nil && helloWorld != nil {
+		if err != nil {
+			return nil, err
+		}
+
+		if helloWorld != nil {
 			c.cache.Put(ctx, namespace, key, *helloWorld, c.cacheTime)
 		}
 	}
