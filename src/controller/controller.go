@@ -10,10 +10,12 @@ var ControllerImp controllerImp
 
 type controllerImp struct {
 	HelloWorldController *internal.HelloWorldController
+	ChatBotMsgController *internal.ChatBotMsgController
 }
 
 func InitControllers(services *service.Services) {
 	ControllerImp.HelloWorldController = internal.NewHelloWorldController(services.HelloWorld)
+	ControllerImp.ChatBotMsgController = internal.NewChatBotMsgController(services.ChatBotMsg)
 }
 
 func IsValid() bool {
