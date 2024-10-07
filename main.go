@@ -107,7 +107,11 @@ func main() {
 	// init cache
 	serviceCache := cache.NewInMemoryCache()
 	// init services
-	services := service.NewServices(storages, serviceCache)
+	services := service.NewServices(storages, serviceCache, config.Get("telegram", "token"))
+
+	//tgBot := telegram.NewTelegramBotService(config.Get("telegram", "token"))
+	//tgBot.Start()
+	services.TelegramBot.Start()
 
 	// init controllers
 	controller.InitControllers(services)
