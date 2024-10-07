@@ -174,7 +174,9 @@ func tlsConfigCreate() *tls.Config {
 			tlsConfig.Certificates = append(tlsConfig.Certificates, cnCert)
 		}
 	}
-	tlsConfig.BuildNameToCertificate()
+
+	// Deprecated from go v1.18
+	//	tlsConfig.BuildNameToCertificate()
 
 	return tlsConfig
 }
