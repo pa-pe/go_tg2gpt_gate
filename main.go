@@ -107,17 +107,17 @@ func main() {
 	// init cache
 	serviceCache := cache.NewInMemoryCache()
 	// init services
-	services := service.NewServices(storages, serviceCache, config.Get("telegram", "token"))
-
-	//tgBot := telegram.NewTelegramBotService(config.Get("telegram", "token"))
-	//tgBot.Start()
-	services.TelegramBot.Start()
+	services := service.NewServices(storages, serviceCache)
 
 	// init controllers
 	controller.InitControllers(services)
 	if !controller.IsValid() {
 		logger.Log.Panic("Invalid controllers")
 	}
+
+	tgBot := src.NewTelegramBot(config.Get("telegram", "token"))
+	go tgBot.ListenAndServ()
+
 	//init middlewares
 	middlewares := middleware.NewMiddlewares(services)
 

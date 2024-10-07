@@ -4,7 +4,6 @@ import (
 	"context"
 	"upserv/src/service/cache"
 	"upserv/src/service/internal"
-	"upserv/src/service/telegram"
 	"upserv/src/storage"
 	"upserv/src/storage/model"
 )
@@ -22,9 +21,8 @@ type ITelegramBot interface {
 	Start()
 }
 
-func NewServices(storages *storage.Storages, cache cache.ICache, telegramToken string) *Services {
+func NewServices(storages *storage.Storages, cache cache.ICache) *Services {
 	return &Services{
-		HelloWorld:  internal.NewHelloWorldService(storages.HelloWorld, cache),
-		TelegramBot: telegram.NewTelegramBotService(telegramToken),
+		HelloWorld: internal.NewHelloWorldService(storages.HelloWorld, cache),
 	}
 }
