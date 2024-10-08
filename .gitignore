@@ -1,3 +1,6 @@
+# skip sqlite and other db
+*.db
+
 # Created by .ignore support plugin (hsz.mobi)
 ### Go template
 # Binaries for programs and plugins
@@ -20,3 +23,4 @@
 /uploads/*
 
 /.gitlab-ci.yml
+/gorm.db
