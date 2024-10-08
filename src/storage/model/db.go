@@ -6,6 +6,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
 	"os"
@@ -33,7 +34,7 @@ func ConnectDb() *gorm.DB {
 		Logger: gormLogger.Default.LogMode(logLevel),
 	}
 
-	var db *gorm.DB
+	var dialector gorm.Dialector
 
 	if dbDriver == "postgres" {
 		host := config.Get("db", "host")
@@ -42,18 +43,21 @@ func ConnectDb() *gorm.DB {
 		user := config.Get("db", "user")
 		password := config.Get("db", "password")
 
-		var err error
 		connUrl = "postgres://" + user + ":" + password + "@" + host + ":" + port + "/" + dbName + "?sslmode=disable"
 		dsn := "host=" + host + " user=" + user + " password=" + password + " dbname=" + dbName + " port=" + port + " sslmode=disable"
 
-		db, err = gorm.Open(postgres.Open(dsn), gormCfg)
-		if err != nil {
-			logger.Log.Panic("failed to connect database: ", err)
-		}
+		//		db, err = gorm.Open(postgres.Open(dsn), gormCfg)
+		dialector = postgres.Open(dsn)
 	} else if dbDriver == "sqlite" {
-		// todo:
+		file := config.Get("db", "file")
+		dialector = sqlite.Open(file)
 	} else {
 		logger.Log.Panic("unsupported config db.driver=", dbDriver)
+	}
+
+	db, err := gorm.Open(dialector, gormCfg)
+	if err != nil {
+		logger.Log.Panic("failed to connect database: ", err)
 	}
 
 	if db == nil {
