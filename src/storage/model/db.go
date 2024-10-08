@@ -15,21 +15,51 @@ import (
 )
 
 var connUrl string
+var dbDriver string
 
-func NewDb(host string, port string, dbName string, user string, password string) *gorm.DB {
-	var err error
-	connUrl = "postgres://" + user + ":" + password + "@" + host + ":" + port + "/" + dbName + "?sslmode=disable"
-	dsn := "host=" + host + " user=" + user + " password=" + password + " dbname=" + dbName + " port=" + port + " sslmode=disable"
+func ConnectDb() *gorm.DB {
+	dbDriver := strings.ToLower(config.Get("db", "driver"))
+
+	if dbDriver == "none" {
+		return nil
+	}
+
 	logLevel := gormLogger.Silent
 	if strings.ToLower(config.Get("logger", "level")) == "debug" {
 		logLevel = gormLogger.Info
 	}
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+
+	gormCfg := &gorm.Config{
 		Logger: gormLogger.Default.LogMode(logLevel),
-	})
-	if err != nil {
-		logger.Log.Panic("failed to connect database: ", err)
 	}
+
+	var db *gorm.DB
+
+	if dbDriver == "postgres" {
+		host := config.Get("db", "host")
+		port := config.Get("db", "port")
+		dbName := config.Get("db", "dbName")
+		user := config.Get("db", "user")
+		password := config.Get("db", "password")
+
+		var err error
+		connUrl = "postgres://" + user + ":" + password + "@" + host + ":" + port + "/" + dbName + "?sslmode=disable"
+		dsn := "host=" + host + " user=" + user + " password=" + password + " dbname=" + dbName + " port=" + port + " sslmode=disable"
+
+		db, err = gorm.Open(postgres.Open(dsn), gormCfg)
+		if err != nil {
+			logger.Log.Panic("failed to connect database: ", err)
+		}
+	}
+
+	if dbDriver == "sqlite" {
+		// todo:
+	}
+
+	if db == nil {
+		logger.Log.Panic("db is a nil pointer!")
+	}
+
 	masterDB, err := db.DB()
 	if err != nil {
 		logger.Log.Panic(err)

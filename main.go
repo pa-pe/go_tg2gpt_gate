@@ -23,7 +23,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"gitlab.com/AngelX/common/config"
-	"gorm.io/gorm"
 	"net/http"
 	"os"
 	"upserv/logger"
@@ -65,19 +64,10 @@ func main() {
 	logger.LaunchLog("Logger initialized...")
 	logger.LaunchLog("Log level is :" + config.Get("logger", "level"))
 
-	var db *gorm.DB
-	if config.Get("db", "name") != "your_database" {
-		// Get new DB
-		db := model.NewDb(
-			config.Get("db", "host"),
-			config.Get("db", "port"),
-			config.Get("db", "name"),
-			config.Get("db", "user"),
-			config.Get("db", "password"),
-		)
-		if db == nil {
-			logger.Log.Panic("db is a nil pointer!")
-		}
+	// Get new DB
+	db := model.ConnectDb()
+
+	if db != nil {
 		sqlDB, err := db.DB()
 		if err != nil {
 			logger.Log.Panic(err)
