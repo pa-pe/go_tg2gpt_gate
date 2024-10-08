@@ -18,7 +18,7 @@ var connUrl string
 var dbDriver string
 
 func ConnectDb() *gorm.DB {
-	dbDriver := strings.ToLower(config.Get("db", "driver"))
+	dbDriver = strings.ToLower(config.Get("db", "driver"))
 
 	if dbDriver == "none" {
 		return nil
@@ -50,10 +50,10 @@ func ConnectDb() *gorm.DB {
 		if err != nil {
 			logger.Log.Panic("failed to connect database: ", err)
 		}
-	}
-
-	if dbDriver == "sqlite" {
+	} else if dbDriver == "sqlite" {
 		// todo:
+	} else {
+		logger.Log.Panic("unsupported config db.driver=", dbDriver)
 	}
 
 	if db == nil {
@@ -76,6 +76,14 @@ func ConnectDb() *gorm.DB {
 }
 
 func Migration() {
+	if dbDriver == "postgres" {
+		sqliteMigration()
+	} else {
+		logger.Log.Panic("unsupported Migration() for db.driver=", dbDriver)
+	}
+}
+
+func sqliteMigration() {
 	m, err := migrate.New("file://migrations", connUrl)
 	if err != nil {
 		logger.Log.Panic(err)
