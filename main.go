@@ -23,8 +23,10 @@ import (
 	"crypto/tls"
 	"fmt"
 	"gitlab.com/AngelX/common/config"
+	"gorm.io/gorm"
 	"net/http"
 	"os"
+	"strings"
 	"upserv/logger"
 	"upserv/src"
 	"upserv/src/controller"
@@ -33,6 +35,7 @@ import (
 	"upserv/src/service/cache"
 	"upserv/src/storage"
 	"upserv/src/storage/model"
+	"upserv/src/storage/utils/auto_migrate"
 )
 
 // @title Basic API
@@ -85,11 +88,14 @@ func main() {
 		if command == "migrate" {
 			Migrate()
 			return
+		} else if strings.ToLower(command) == "automigrate" {
+			autoMigrate(db)
+			return
 		} else {
 			logger.LaunchLog("Unrecognized command: " + command)
 			logger.LaunchLog("Exiting...")
+			os.Exit(2)
 		}
-		os.Exit(2)
 	}
 
 	// init storages
@@ -174,4 +180,12 @@ func tlsConfigCreate() *tls.Config {
 func Migrate() {
 	logger.LaunchLog("Migration started")
 	model.Migration()
+}
+
+func autoMigrate(db *gorm.DB) {
+	logger.LaunchLog("Migration started")
+	err := auto_migrate.Execute(db)
+	if err != nil {
+		logger.Log.Panic("autoMigrate failed: ", err)
+	}
 }
